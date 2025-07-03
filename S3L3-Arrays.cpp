@@ -228,7 +228,7 @@ int main()
 }
 */
 
-//3 SUM PROBLEM
+//Q3 3-SUM PROBLEM
 /*
 #include<bits/stdc++.h>
 using namespace std;
@@ -277,6 +277,311 @@ int main()
         cout << "] ";
     }
     cout << "\n";
+return 0;
+}
+*/
+
+//4SUM PROBLEM
+/*
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<vector<int>>fsum(vector<int>v,int target)
+{
+    int n=v.size();
+    vector<vector<int>>ans;
+    sort(v.begin(),v.end());
+    for(int i=0;i<n;i++)
+    {
+      if(i>0 && v[i]==v[i-1])
+      continue;
+      for(int j=i+1;j<n;j++)
+    {
+      if(j>i+1 && v[j]==v[j-1])
+      continue;
+    
+        int k=j+1;
+        int l=n-1;
+        while(k<l)
+        {
+           int sum=v[i]+v[j]+v[k]+v[l];
+        if(sum<target)
+        k++;
+        else if(sum>target)
+        l--;
+        else
+        {
+            vector<int>temp={v[i],v[j],v[k],v[l]};
+            ans.push_back(temp); //pushing for clubbing as matrix
+            k++;
+            l--;
+            //skipping duplicates
+            while (k<l && v[k] == v[k - 1]) k++;
+            while (k<l && v[l] == v[l + 1]) l--;
+        }
+        }
+    }  
+}
+return ans;
+}
+int main()
+{
+    vector<int> nums = {4, 3, 3, 4, 4, 2, 1, 2, 1, 1};
+    int target = 9;
+    vector<vector<int>> ans = fsum(nums, target);
+    cout << "The quadruplets are: \n";
+    for (auto it : ans) {
+        cout << "[";
+        for (auto ele : it) {
+            cout << ele << " ";
+        }
+        cout << "] ";
+    }
+    cout << "\n";
+return 0;
+}
+*/
+
+//LONGEST SUBARRAY EQUAL TO ZERO
+/*
+#include<bits/stdc++.h>
+using namespace std;
+
+int zerosub(vector<int>v,int n)
+{
+    unordered_map<int,int>mp;
+    int maxlen=0;
+    int sum=0;
+    for(int i=0;i<n;i++)
+    {
+        sum+=v[i];
+        if(sum==0)
+        maxlen=i+1;
+        else if(mp.find(sum)!=mp.end())
+        {
+            maxlen=max(maxlen,i-mp[sum]);
+        }
+        else
+        mp[sum]=i;
+    }
+    return maxlen;
+}
+int main()
+{
+    vector<int> nums = {1, 2, -2, 4, -4};
+    int n=nums.size();
+    int ans = zerosub(nums, n);
+    cout << "Largest subarray equal to zero is "<<ans<<endl;
+return 0;
+}
+*/
+
+//NUMBER OF ARRAYS WITH XOR K
+/*
+#include<bits/stdc++.h>
+using namespace std;
+
+int xorn(vector<int>&v,int n,int k)
+{
+int xr=0;
+map<int,int>mp;
+mp[xr]++;
+int cnt=0;
+for(int i=0;i<n;i++)
+{
+    xr=xr^v[i]; //prefix xor till index i
+    int x=xr^k; //formula for front xor
+    cnt+=mp[x]; //adding occurance to counter
+    mp[xr]++; //updating key of xr
+}
+return cnt;
+}
+int main()
+{
+    vector<int> a = {4, 2, 2, 6, 4};
+    int k = 6;
+    int n=a.size();
+    int ans = xorn(a,n,k);
+    cout << "The number of subarrays with XOR k is: "
+         << ans << "\n";
+return 0;
+}
+*/
+
+//MERGE OVERLAPPING SUBINTERVALS
+/*
+//BRUTE FORCE APPROACH
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<vector<int>>mergeint(vector<vector<int>>&v)
+{
+    int n=v.size();
+    sort(v.begin(),v.end());
+    vector<vector<int>>ans;
+    for(int i=0;i<n;i++)
+    {
+        int start=v[i][0];
+        int end=v[i][1];
+        if(!ans.empty() && end<=ans.back()[1]) //skipping merged intervals
+        {
+            continue;
+        }
+        //checking rest of the intervals
+        for(int j=i+1;j<n;j++)
+        {
+            if(v[j][0]<=end)
+            end=max(end,v[j][1]); //finding higher end in intervals
+            else
+            break; //as array is sorted so no other change of solution is possible
+        }
+        ans.push_back({start,end});
+    }
+    return ans;
+}
+int main()
+{
+    vector<vector<int>> arr = {{1, 3}, {8, 10}, {2, 6}, {15, 18}};
+    vector<vector<int>> ans = mergeint(arr);
+    cout << "The merged intervals are: " << "\n";
+    for (auto it : ans) {
+        cout << "[" << it[0] << ", " << it[1] << "] ";
+    }
+    cout << endl;
+return 0;
+}
+*/
+
+//OPTIMAL APPROACH
+/*
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<vector<int>>mergeint(vector<vector<int>>&v)
+{
+    int n=v.size();
+    sort(v.begin(),v.end());
+    vector<vector<int>>ans;
+    for(int i=0;i<n;i++)
+    {
+        if(ans.empty() || v[i][0]>ans.back()[1]) //skipping merged intervals
+        {
+            ans.push_back(v[i]);
+        }
+        else
+        {
+        ans.back()[1]=max( ans.back()[1],v[i][1]);
+        }
+}
+return ans;
+}
+int main()
+{
+    vector<vector<int>> arr = {{1, 3}, {8, 10}, {2, 6}, {15, 18}};
+    vector<vector<int>> ans = mergeint(arr);
+    cout << "The merged intervals are: " << "\n";
+    for (auto it : ans) {
+        cout << "[" << it[0] << ", " << it[1] << "] ";
+    }
+    cout << endl;
+return 0;
+}
+*/
+
+//Q8 MERGE TWO SORTED ARRAYS
+//OPTIMAL APPROACH-1
+/*
+#include<bits/stdc++.h>
+using namespace std;
+
+void merge(long long a1[],long long a2[],int n,int m)
+{
+    int left=n-1;
+    int right=0;
+    while(left>=0 && right<m)
+    {
+        if(a1[left]>a2[right])
+        {
+            swap(a1[left],a2[right]);
+            left--;
+            right++;
+        }
+        else
+        break;
+    }
+    sort(a1,a1+n);
+    sort(a2,a2+m);
+}
+int main()
+{
+    long long arr1[] = {1, 4, 8, 10};
+    long long arr2[] = {2, 3, 9};
+    int n = 4, m = 3;
+    merge(arr1, arr2, n, m);
+    cout << "The merged arrays are: " << "\n";
+    cout << "arr1[] = ";
+    for (int i = 0; i < n; i++) {
+        cout << arr1[i] << " ";
+    }
+    cout << "\narr2[] = ";
+    for (int i = 0; i < m; i++) {
+        cout << arr2[i] << " ";
+    }
+    cout << endl;
+return 0;
+}
+*/
+
+//OPTIMAL APPROACH-2
+/*
+#include<bits/stdc++.h>
+using namespace std;
+
+void swapcheck(long long a1[],long long a2[],int ind1,int ind2)
+{
+if(a1[ind1]>a2[ind2])
+swap(a1[ind1],a2[ind2]);
+}
+
+void merge(long long a1[],long long a2[],int n,int m)
+{
+    int len=n+m;
+    int gap=(len + 1) / 2;
+    while(gap>0)
+    {
+    int left=0;
+    int right=left+gap;
+    while(right<len)
+    {
+        if(left<n && right>=n)
+        swapcheck(a1,a2,left,right-n);
+        else if(left>=n)
+        swapcheck(a2,a2,left,right-n);
+        else
+        swapcheck(a1,a1,left,right);
+        left++,right++;
+    }
+        if(gap==1)
+        break;
+        gap=(gap + 1) / 2;
+    }
+}
+int main()
+{
+    long long arr1[] = {1, 4, 8, 10};
+    long long arr2[] = {2, 3, 9};
+    int n = 4, m = 3;
+    merge(arr1, arr2, n, m);
+    cout << "The merged arrays are: " << "\n";
+    cout << "arr1[] = ";
+    for (int i = 0; i < n; i++) {
+        cout << arr1[i] << " ";
+    }
+    cout << "\narr2[] = ";
+    for (int i = 0; i < m; i++) {
+        cout << arr2[i] << " ";
+    }
+    cout << endl;
 return 0;
 }
 */
