@@ -585,3 +585,295 @@ int main()
 return 0;
 }
 */
+
+//Q10 COUNT INVERSIONS
+/*
+#include<bits/stdc++.h>
+using namespace std;
+
+int merge(vector<int>&v,int low,int mid,int high)
+{
+    vector<int>temp;
+    int left=low;
+    int right=mid+1;
+    int cnt=0;
+    while(left<=mid && right<=high)
+    {
+        if(v[left]<=v[right])
+        {
+        temp.push_back(v[left]);
+        left++;
+        }
+        else
+        {
+            temp.push_back(v[right]);
+            cnt+=(mid-left+1);
+            right++;
+        }
+    }
+    while(left<=mid)
+    {
+       temp.push_back(v[left]);
+        left++; 
+    }
+    while (right<=high)
+    {
+          temp.push_back(v[right]);
+          right++;
+    }
+    for(int i=low;i<high;i++)
+    {
+      v[i]=temp[i-low];
+    }
+    return cnt;
+}
+
+int mergesort(vector<int>&v,int low,int high)
+{
+    int cnt=0;
+    if(low>=high)
+    {
+        return cnt;
+    }
+    int mid=(low+high)/2;
+    cnt+=mergesort(v,low,mid);
+    cnt+=mergesort(v,mid+1,high);
+    cnt+=merge(v,low,mid,high);
+    return cnt;
+}
+int inversions(vector<int>&a, int n)
+{
+    return mergesort(a,0,n-1);
+}
+
+int main()
+{
+    vector<int> a = {5, 4, 3, 2, 1};
+    int n = 5;
+    int cnt = inversions(a, n);
+    cout << "The number of inversions are: "
+         << cnt << endl;
+return 0;
+}
+*/
+
+//Q9 Find the repeating and missing numbers
+//OPTIMAL APPROACH 1
+/*
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<int>findnum(vector<int>v)
+{
+long long n=v.size();
+long long sumo=(n*(n+1))/2;
+long long sumo2=(n*(n+1)*(2*n+1))/6;
+long long sumc=0,sumc2=0;
+for(int i=0;i<n;i++)
+{
+sumc+=v[i];
+sumc2+=(long long)v[i]*(long long)v[i];
+}
+long long val1=sumo-sumc;//X-Y
+long long val2=sumo2-sumc2;//X2-Y2
+val2/=val1;//X+Y
+long long x=(val1+val2)/2;
+long long y=x-val1;
+return {(int)x,(int)y};
+}
+int main()
+{
+    vector<int> a = {3, 1, 2, 5, 4, 6, 7, 5};
+    vector<int> ans = findnum(a);
+    cout << "The repeating and missing numbers are: {"
+         << ans[0] << ", " << ans[1] << "}\n";
+return 0;
+}
+*/
+
+//OPTIMAL APPROACH 2
+/*
+#include<bits/stdc++.h>
+using namespace std;
+vector<int>findnum(vector<int>v)
+{
+int n=v.size();
+int xr=0;
+for(int i=0;i<n;i++) //finding xor of all elements
+{
+    xr^=v[i];
+    xr^=i+1;
+}
+int num=(xr & ~(xr-1)); //finding bitwise difference
+int zero=0;
+int one=0;
+for(int i=0;i<n;i++)
+{
+    if((v[i] & num)!=0)
+    one^=v[i]; //xoring in one club
+    else
+    zero^=v[i]; //xoring in zero club
+}
+for(int i=1;i<=n;i++)
+{
+    if((i & num)!=0)
+    one^=i;
+    else
+    zero^=i;
+}
+int cnt=0;
+for(int i=0;i<n;i++)
+{
+    if(v[i]==zero)
+    cnt++;
+}
+if(cnt==2)
+return {zero,one};
+else
+return {one,zero};
+}
+
+int main()
+{
+    vector<int> a = {3, 1, 2, 5, 4, 6, 7, 5};
+    vector<int> ans = findnum(a);
+    cout << "The repeating and missing numbers are: {"
+         << ans[0] << ", " << ans[1] << "}\n";
+return 0;
+}
+*/
+
+//REVERSE PAIRS
+/*
+#include <bits/stdc++.h>
+using namespace std;
+
+void merge(vector<int> &arr, int low, int mid, int high) {
+    vector<int> temp; // temporary array
+    int left = low;      // starting index of left half of arr
+    int right = mid + 1;   // starting index of right half of arr
+
+    //storing elements in the temporary array in a sorted manner//
+
+    while (left <= mid && right <= high) {
+        if (arr[left] <= arr[right]) {
+            temp.push_back(arr[left]);
+            left++;
+        }
+        else {
+            temp.push_back(arr[right]);
+            right++;
+        }
+    }
+
+    // if elements on the left half are still left //
+
+    while (left <= mid) {
+        temp.push_back(arr[left]);
+        left++;
+    }
+
+    //  if elements on the right half are still left //
+    while (right <= high) {
+        temp.push_back(arr[right]);
+        right++;
+    }
+
+    // transfering all elements from temporary to arr //
+    for (int i = low; i <= high; i++) {
+        arr[i] = temp[i - low];
+    }
+}
+
+int countPairs(vector<int> &arr, int low, int mid, int high) {
+    int right = mid + 1;
+    int cnt = 0;
+    for (int i = low; i <= mid; i++) {
+        while (right <= high && arr[i] > 2 * arr[right]) right++;
+        cnt += (right - (mid + 1));
+    }
+    return cnt;
+}
+
+int mergeSort(vector<int> &arr, int low, int high) {
+    int cnt = 0;
+    if (low >= high) return cnt;
+    int mid = (low + high) / 2 ;
+    cnt += mergeSort(arr, low, mid);  // left half
+    cnt += mergeSort(arr, mid + 1, high); // right half
+    cnt += countPairs(arr, low, mid, high); //Modification
+    merge(arr, low, mid, high);  // merging sorted halves
+    return cnt;
+}
+
+int team(vector <int> & skill, int n)
+{
+    return mergeSort(skill, 0, n - 1);
+}
+
+int main()
+{
+    vector<int> a = {4, 1, 2, 3, 1};
+    int n = 5;
+    int cnt = team(a, n);
+    cout << "The number of reverse pair is: "
+         << cnt << endl;
+    return 0;
+}
+*/
+
+//MAXIMUM PRODUCT SUBARRAY
+//OPTIMAL APPROACH-1
+/*
+#include <bits/stdc++.h>
+using namespace std;
+
+int maxProductSubArray(vector<int> &arr) {
+    int n = arr.size(); //size of array.
+
+    int pre = 1, suff = 1;
+    int ans = INT_MIN;
+    for (int i = 0; i < n; i++) {
+        if (pre == 0) pre = 1; //dividing array with zero as borderpoint
+        if (suff == 0) suff = 1;
+        pre *= arr[i];
+        suff *= arr[n - i - 1];
+        ans = max(ans, max(pre, suff));
+    }
+    return ans;
+}
+
+int main()
+{
+    vector<int> arr = {1, 2, -3, 0, -4, -5};
+    cout << "The maximum product subarray is: "
+         << maxProductSubArray(arr) << "\n";
+    return 0;
+}
+*/
+
+//OPTIMAL APPROACH-2
+/*
+#include<bits/stdc++.h>
+using namespace std;
+
+int maxprod(vector<int>&v)
+{
+int prod1=v[0],prod2=v[0],result=v[0];
+for(int i=1;i<v.size();i++)
+{
+    int temp1=prod1*v[i];
+    int temp2=prod2*v[i];
+    prod1=max({v[i],temp1,temp2});
+    prod2=min({v[i],temp1,temp2});
+    result=max(result,prod1);
+}
+return result;
+}
+int main()
+{
+    vector<int> nums = {1,2,-3,0,-4,-5};
+    cout<<"The maximum product subarray: "<<maxprod(nums);
+return 0;
+}
+*/
